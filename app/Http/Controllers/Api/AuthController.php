@@ -11,32 +11,42 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validatedData = $this->validate($request, [
-            'name' => 'required|max:55',
+
+            'name' => ['required','max:55'],
+
             'email' => 'email|required|unique:users',
-            'password' => 'required|confirmed'
+
+            'password' => ['required','confirmed']
+
         ]);
-$validatedData['password']=bcrypt($request->password);
+        $validatedData['password'] = bcrypt($request->password);
 
-    $user =    User::create($validatedData);
-    $accessToken= $user->createToken('authToken')->accessToken;
 
-    return response(['user'=> $user, 'access_token'=> $accessToken]);
+        $user = User::create($validatedData);
+
+        $accessToken = $user->createToken('authToken')->accessToken;
+
+        return response(['user' => $user, 'access_token' => $accessToken]);
+
     }
     public function login(Request $request)
     {
+
         $loginData = $this->validate($request, [
-            
-            'email' => 'email|required',
+
+            'email' => ['email','required'],
+
             'password' => 'required'
-        ]); 
+            
+        ]);
         if (!auth()->attempt($loginData)) {
-        return response(['message'=> 'invalid credentials']);
-        $accessToken= auth()->user()->createToken('authToken')->accessToken;
-        return response(['user'=> auth()->user(), 'access_token'=> $accessToken]);
-        
-  
-  
+
+            return response(['message' => 'invalid credentials']);
+
+            $accessToken = auth()->user()->createToken('authToken')->accessToken;
+
+            return response(['user' => auth()->user(), 'access_token' => $accessToken]);
+
         }
-    
     }
 }
